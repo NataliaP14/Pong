@@ -24,9 +24,10 @@ def main():
 
     #this will check whether or not to move the ball, will move after 3 seconds
     started = False
+    quitted = False
 
     #points
-    point = 0
+    point1 = 0
     point2 = 0
 
     #players game paddles, pygame.Rect needs x y width and height
@@ -56,7 +57,8 @@ def main():
     while True:
         #setting background color to black everytime the game updates
         screen.fill(COLOR_BLACK)
-        if not started:
+        if not started and not quitted:
+           
             screen.fill(COLOR_BLACK)
             start_screen(screen)
             
@@ -68,10 +70,25 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         started = True
-         
+                        quitted = False
                         delta_time = clock.tick(60)
         else:
-                  
+            started = True
+            #scores
+            font = pygame.font.SysFont('Consolas', 20)
+            score1 = font.render("Score 1: " + str(point1), True, COLOR_WHITE)
+            score1_rect = score1.get_rect()
+            score1_rect = (150,10)
+            screen.blit(score1, score1_rect)
+
+            font = pygame.font.SysFont('Consolas', 20)
+            score2 = font.render("Score 2: " + str(point2), True, COLOR_WHITE)
+            score2_rect = score2.get_rect()
+            score2_rect = (700,10)
+            screen.blit(score2, score2_rect)
+
+           
+                 
             #getting time elapse between now and the last frame, 
             delta_time = clock.tick(60)
             ball_rect.left += ball_accel_x * delta_time
@@ -151,18 +168,29 @@ def main():
             
 
             #if the ball goes out of bounds on the right or left side, end the game
-            if ball_rect.left <= -1: 
-                pygame.time.wait(3000)
+            if ball_rect.left <= 0: 
                 ball_rect = pygame.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 25)
-                
-                
-
-               
-
-            elif ball_rect.left >= SCREEN_WIDTH + 1:
-                pygame.time.wait(100)
+                point1 += 1
+                if point1 == 10:
+                    started = False
+                    quitted = True
+                    new_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+                    pygame.display.set_caption("Quit Screen")
+                    quit_screen(new_screen)
+                    pygame.display.update()
+                    break
+                    
+            elif ball_rect.left >= SCREEN_WIDTH:
                 ball_rect = pygame.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 25)
-                
+                point2 += 1
+                if point2 == 10:
+                    started = False
+                    quitted = True
+                    new_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+                    pygame.display.set_caption("Quit Screen")
+                    quit_screen(new_screen)
+                    pygame.display.update()
+                    break
                 
 
              #if padding 1 collides with the balla nd the ball is in front of it, change the speed of the ball and
@@ -176,8 +204,6 @@ def main():
                 ball_accel_x *= -1
                 ball_rect.left -= 5
 
-            #if the ball can move, game is started, it moves the ball
-
       
             #drawing player 1 and 2 paddles rect with white
             pygame.draw.rect(screen, COLOR_WHITE, paddle_1_rect)
@@ -185,10 +211,6 @@ def main():
 
             #drawing the ball with white color
             pygame.draw.rect(screen, COLOR_WHITE, ball_rect)
-
-         
-        #moves the ball
-        
             
        
         #updating display (necessary)
@@ -197,11 +219,22 @@ def main():
        
 
 def start_screen(screen):
+    quitted = False
     screen.fill(COLOR_BLACK)
     font = pygame.font.SysFont('Consolas', 30)
 
     #drawing text to the center of the screen
     text = font.render("Press Space to Start", True, COLOR_WHITE)
+    text_rect = text.get_rect()
+    text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    screen.blit(text, text_rect)
+
+    pygame.display.flip()
+
+def quit_screen(screen):
+    screen.fill(COLOR_BLACK)
+    font = pygame.font.SysFont('Consolas', 30)
+    text = font.render("Thank you for playing!", True, COLOR_WHITE)
     text_rect = text.get_rect()
     text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
     screen.blit(text, text_rect)
