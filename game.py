@@ -6,10 +6,10 @@ SCREEN_HEIGHT = 720
 # rgb values used in the game
 COLOR_BLACK = (0,0,0)
 COLOR_WHITE = (255,255,255)
+COLOR_BLUE = (0,0,255)
 
 def main():
     #game setup
-
     #initializing pygame library
     pygame.init()
 
@@ -30,9 +30,14 @@ def main():
     point1 = 0
     point2 = 0
 
+    game_state = "start"
+
     #players game paddles, pygame.Rect needs x y width and height
     paddle_1_rect = pygame.Rect(30,0,7,100)
     paddle_2_rect = pygame.Rect(SCREEN_WIDTH - 50,0,7,100)
+
+    #gameline
+    game_line = pygame.Rect(SCREEN_WIDTH / 2, 0, 7, 720)
 
     #tracking by how much players paddle will move per frame
     paddle_1_move = 0
@@ -51,40 +56,56 @@ def main():
     if random.randint(1,2) == 1:
         ball_accel_y *= -1
 
-   
+    
+    
 
     #game loop
     while True:
         #setting background color to black everytime the game updates
         screen.fill(COLOR_BLACK)
-        if not started and not quitted:
-           
-            screen.fill(COLOR_BLACK)
-            start_screen(screen)
             
         #making the ball move after three seconds
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if game_state == "start":
+                        game_state = "playing"
+                    delta_time = clock.tick(60)   
+             
+            if event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                if restart_button.collidepoint(pos):
+                    game_state = "start" 
+                    point1 = 0
+                    point2 = 0
+                    
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                if quit_button.collidepoint(pos):
                     return
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        started = True
-                        quitted = False
-                        delta_time = clock.tick(60)
-        else:
-            started = True
+
+
+        if game_state == "start":
+          start_screen(screen)
+           
+            
+        elif game_state == "playing":
+            screen.fill(COLOR_BLUE)
             #scores
-            font = pygame.font.SysFont('Consolas', 20)
-            score1 = font.render("Score 1: " + str(point1), True, COLOR_WHITE)
+            font = pygame.font.SysFont('Arcade Classic', 50)
+            score1 = font.render(str(point1), True, COLOR_WHITE)
             score1_rect = score1.get_rect()
             score1_rect = (150,10)
             screen.blit(score1, score1_rect)
 
-            font = pygame.font.SysFont('Consolas', 20)
-            score2 = font.render("Score 2: " + str(point2), True, COLOR_WHITE)
+            font = pygame.font.SysFont('Arcade Classic', 50)
+            score2 = font.render(str(point2), True, COLOR_WHITE)
             score2_rect = score2.get_rect()
-            score2_rect = (700,10)
+            score2_rect = (800,10)
             screen.blit(score2, score2_rect)
 
            
@@ -172,25 +193,13 @@ def main():
                 ball_rect = pygame.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 25)
                 point1 += 1
                 if point1 == 10:
-                    started = False
-                    quitted = True
-                    new_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-                    pygame.display.set_caption("Quit Screen")
-                    quit_screen(new_screen)
-                    pygame.display.update()
-                    break
-                    
+                    game_state = "end"
+                            
             elif ball_rect.left >= SCREEN_WIDTH:
                 ball_rect = pygame.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 25)
                 point2 += 1
                 if point2 == 10:
-                    started = False
-                    quitted = True
-                    new_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-                    pygame.display.set_caption("Quit Screen")
-                    quit_screen(new_screen)
-                    pygame.display.update()
-                    break
+                    game_state = "end"
                 
 
              #if padding 1 collides with the balla nd the ball is in front of it, change the speed of the ball and
@@ -211,37 +220,61 @@ def main():
 
             #drawing the ball with white color
             pygame.draw.rect(screen, COLOR_WHITE, ball_rect)
+
+            #drawing gameline
+            pygame.draw.rect(screen, COLOR_WHITE, game_line)
+
+        elif game_state == "end":
             
-       
+            quit_screen(screen)
+            restart_button = pygame.Rect(300, 400, 150, 40) 
+            restart(screen)
+
+            #quit button
+            quit_button = pygame.Rect(500, 400, 150, 40) 
+            quit(screen)
+            
+                               
+        
         #updating display (necessary)
         pygame.display.update()
 
-       
-
 def start_screen(screen):
-    quitted = False
-    screen.fill(COLOR_BLACK)
-    font = pygame.font.SysFont('Consolas', 30)
-
+    
+  
+    font = pygame.font.SysFont('Arcade Classic', 30)
+   
     #drawing text to the center of the screen
-    text = font.render("Press Space to Start", True, COLOR_WHITE)
+    text = font.render("Press  Space  to  Start", True, COLOR_WHITE)
     text_rect = text.get_rect()
     text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
     screen.blit(text, text_rect)
-
     pygame.display.flip()
 
 def quit_screen(screen):
-    screen.fill(COLOR_BLACK)
-    font = pygame.font.SysFont('Consolas', 30)
-    text = font.render("Thank you for playing!", True, COLOR_WHITE)
+    
+    font = pygame.font.SysFont('Arcade Classic', 30)
+    text = font.render("Thank  you  for  playing !", True, COLOR_WHITE)
     text_rect = text.get_rect()
     text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
     screen.blit(text, text_rect)
 
-    pygame.display.flip()
+def restart(screen):
+    restart_button = pygame.Rect(300, 400, 150, 40) 
+    pygame.draw.rect(screen, COLOR_WHITE, restart_button)
+    font = pygame.font.SysFont('Arcade Classic', 35)
+    text = font.render("Restart", True, COLOR_BLACK)
+    text_rect = text.get_rect(center=restart_button.center)
+    screen.blit(text, text_rect)
 
-
+def quit(screen):
+    quit_button = pygame.Rect(500, 400, 150, 40) 
+    pygame.draw.rect(screen, COLOR_WHITE, quit_button)
+    font = pygame.font.SysFont('Arcade Classic', 35)
+    text = font.render("Quit", True, COLOR_BLACK)
+    text_rect = text.get_rect(center=quit_button.center)
+    screen.blit(text, text_rect)
+       
 #running the game
 if __name__ == "__main__":
     main()
