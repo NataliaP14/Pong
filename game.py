@@ -7,6 +7,7 @@ SCREEN_HEIGHT = 720
 COLOR_BLACK = (0,0,0)
 COLOR_WHITE = (255,255,255)
 COLOR_BLUE = (0,0,255)
+COLOR_GRAY = (127,127,127)
 
 def main():
     #game setup
@@ -62,7 +63,7 @@ def main():
     #game loop
     while True:
         #setting background color to black everytime the game updates
-        screen.fill(COLOR_BLACK)
+        screen.fill(COLOR_GRAY)
             
         #making the ball move after three seconds
         for event in pygame.event.get():
@@ -77,16 +78,18 @@ def main():
              
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
-                if restart_button.collidepoint(pos):
-                    game_state = "start" 
-                    point1 = 0
-                    point2 = 0
+                if game_state == "end":
+                    if restart_button.collidepoint(pos):
+                        game_state = "start" 
+                        point1 = 0
+                        point2 = 0
                     
 
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
-                if quit_button.collidepoint(pos):
-                    return
+                if game_state == "end":
+                    if quit_button.collidepoint(pos):
+                        return
 
 
         if game_state == "start":
@@ -227,11 +230,11 @@ def main():
         elif game_state == "end":
             
             quit_screen(screen)
-            restart_button = pygame.Rect(300, 400, 150, 40) 
+            restart_button = pygame.Rect(300, 300, 150, 40) 
             restart(screen)
 
             #quit button
-            quit_button = pygame.Rect(500, 400, 150, 40) 
+            quit_button = pygame.Rect(500, 300, 150, 40) 
             quit(screen)
             
                                
@@ -256,11 +259,11 @@ def quit_screen(screen):
     font = pygame.font.SysFont('Arcade Classic', 30)
     text = font.render("Thank  you  for  playing !", True, COLOR_WHITE)
     text_rect = text.get_rect()
-    text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    text_rect.center = (SCREEN_WIDTH // 2, 250)
     screen.blit(text, text_rect)
 
 def restart(screen):
-    restart_button = pygame.Rect(300, 400, 150, 40) 
+    restart_button = pygame.Rect(300, 300, 150, 40) 
     pygame.draw.rect(screen, COLOR_WHITE, restart_button)
     font = pygame.font.SysFont('Arcade Classic', 35)
     text = font.render("Restart", True, COLOR_BLACK)
@@ -268,7 +271,7 @@ def restart(screen):
     screen.blit(text, text_rect)
 
 def quit(screen):
-    quit_button = pygame.Rect(500, 400, 150, 40) 
+    quit_button = pygame.Rect(500, 300, 150, 40) 
     pygame.draw.rect(screen, COLOR_WHITE, quit_button)
     font = pygame.font.SysFont('Arcade Classic', 35)
     text = font.render("Quit", True, COLOR_BLACK)
