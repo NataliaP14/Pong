@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, pygame.time
 
 SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 720
@@ -7,7 +7,6 @@ SCREEN_HEIGHT = 720
 COLOR_BLACK = (0,0,0)
 COLOR_WHITE = (255,255,255)
 COLOR_BLUE = (0,0,255)
-COLOR_GRAY = (127,127,127)
 
 def main():
     #game setup
@@ -24,8 +23,7 @@ def main():
     clock = pygame.time.Clock()
 
     #this will check whether or not to move the ball, will move after 3 seconds
-    started = False
-    quitted = False
+    ball_in_center = True
 
     #points
     point1 = 0
@@ -48,8 +46,8 @@ def main():
     ball_rect = pygame.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 25)
 
     #determine the x and y speed of the ball (0.1 is just to scale the speed down)
-    ball_accel_x = random.randint(2,4) * 0.1
-    ball_accel_y = random.randint(2,4) * 0.1
+    ball_accel_x = random.randint(3,4) * 0.1
+    ball_accel_y = random.randint(3,4) * 0.1
 
     #randomize the direction of the ball
     if random.randint(1,2) == 1:
@@ -63,7 +61,7 @@ def main():
     #game loop
     while True:
         #setting background color to black everytime the game updates
-        screen.fill(COLOR_GRAY)
+        screen.fill(COLOR_BLACK)
             
         #making the ball move after three seconds
         for event in pygame.event.get():
@@ -192,14 +190,39 @@ def main():
             
 
             #if the ball goes out of bounds on the right or left side, end the game
-            if ball_rect.left <= 0: 
+            if ball_rect.left < 0: 
+               
                 ball_rect = pygame.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 25)
+                ball_in_center = True
+                 
+                if ball_in_center:
+                    
+                    ball_accel_x = random.randint(3,4) * 0.1
+                    ball_accel_y = random.randint(3,4) * 0.1
+                    if random.randint(1,2) == 1:
+                        ball_accel_x *= -1
+                    if random.randint(1,2) == 1:
+                        ball_accel_y *= -1
+                    ball_in_center = False
+                 
                 point1 += 1
                 if point1 == 10:
                     game_state = "end"
                             
             elif ball_rect.left >= SCREEN_WIDTH:
                 ball_rect = pygame.Rect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 25)
+                ball_in_center = True
+                 
+                if ball_in_center:
+                    
+                    ball_accel_x = random.randint(3,4) * 0.1
+                    ball_accel_y = random.randint(3,4) * 0.1
+                    if random.randint(1,2) == 1:
+                        ball_accel_x *= -1
+                    if random.randint(1,2) == 1:
+                        ball_accel_y *= -1
+                    ball_in_center = False
+
                 point2 += 1
                 if point2 == 10:
                     game_state = "end"
@@ -243,15 +266,17 @@ def main():
         pygame.display.update()
 
 def start_screen(screen):
-    
-  
     font = pygame.font.SysFont('Arcade Classic', 30)
    
     #drawing text to the center of the screen
+    welcome_text = font.render("Welcome  to  Pong !  Reach  10  points  to  win  the  game !", True, COLOR_WHITE)
     text = font.render("Press  Space  to  Start", True, COLOR_WHITE)
     text_rect = text.get_rect()
+    welcome_text_rect = welcome_text.get_rect()
     text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    welcome_text_rect.center = (SCREEN_WIDTH //2 , 300)
     screen.blit(text, text_rect)
+    screen.blit(welcome_text,welcome_text_rect)
     pygame.display.flip()
 
 def quit_screen(screen):
